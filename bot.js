@@ -1,29 +1,28 @@
-const fetch = require('node-fetch');
-
 const accessToken = "WAAVgV0sTckWIRedvZBR1V72a8Y1rBxZCkwu27mtSG2zorg2CJzOaeKazdhqbW5U8TSQZAxVeAbHBBCIUwZAoK98KchgoEcdhj3VrNwbZAlyoVDVCn84cRJU3WdZCjdQF8gBWJS5NDHJHz6RgdnsoG5NjeZBDUobZBPtMGMdqPT8ULfburT9EZD";
 const baseUrl = "https://api.whatsapp.com/agent/v1";
 const apinexKey = "sk-apx7f8f802ac74f725821e2962f3aba8a7010e524e4870e192";
 
 export default async function handler(req, res) {
-    try {
-        // 1. Fetch updates from WhatsApp Agent API
-        const updateRes = await fetch(`${baseUrl}/updates?limit=10&timeout=5`, {
-            headers: { 'Authorization': `Bearer ${accessToken}` }
-        });
-        const data = await updateRes.json();
+    // 1. Handle Webhook Verification (GET request from WhatsApp)
+    if (req.method === 'GET') {
+        return res.status(200).json({ status: "ZaidTech Bot Webhook is Active!" });
+    }
 
-        if (data.entry && data.entry[0].changes[0].value.messages) {
-            const messages = data.entry[0].changes[0].value.messages;
+    try {
+        // 2. Handle Incoming Messages (POST request)
+        const body = req.body;
+
+        if (body && body.entry && body.entry[0]?.changes[0]?.value?.messages) {
+            const messages = body.entry[0].changes[0].value.messages;
 
             for (const msg of messages) {
-                const recipientId = msg.from; // user:<id> format
+                const recipientId = msg.from; 
                 const userText = msg.text?.body;
 
                 if (recipientId && userText) {
-                    // 2. Get AI Response from APInex
+                    // Get AI Response
                     const aiReply = await getAIResponse(userText);
-
-                    // 3. Send Reply to WhatsApp
+                    // Send Reply to WhatsApp
                     await sendReply(recipientId, aiReply);
                 }
             }
