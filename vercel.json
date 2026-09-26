@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/bot.js", "use": "@vercel/node" }
+  ],
+  "crons": [
+    {
+      "path": "/api/bot",
+      "schedule": "* * * * *"
+    }
+  ]
+}
